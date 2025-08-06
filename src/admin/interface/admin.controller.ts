@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { AdminService } from '../app/admin.service';
 import { Admin } from '../domain/admin.entity';
@@ -17,9 +18,9 @@ import {
 } from '../domain/admin.exception';
 import { sendFailRes, sendSuccessRes } from 'src/shared/response';
 import { AuthService } from 'src/auth/auth.service';
-import { ERole } from 'src/auth/role.enum';
 import { Response } from 'express';
 import { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME } from 'src/auth/auth.type';
+import { SuperAdminGuard } from 'src/auth/guard/superadmin.guard';
 
 @Controller('admin')
 export class AdminController {
@@ -30,18 +31,21 @@ export class AdminController {
 
   // 관리자 목록 조회
   @Get('/')
+  @UseGuards(SuperAdminGuard)
   async findAll(): Promise<Admin[]> {
     return this.service.findAll();
   }
 
   // 관리자 조회
   @Get('/:id')
+  @UseGuards(SuperAdminGuard)
   async findOne(@Param('id') id: number): Promise<Admin | null> {
     return this.service.findById(id);
   }
 
   // 관리자 생성
   @Post('/')
+  @UseGuards(SuperAdminGuard)
   async create(@Body() dto: CreateAdminDto) {
     try {
       const created = await this.service.create(dto);
@@ -130,6 +134,7 @@ export class AdminController {
 
   // 관리자 수정
   @Put('/:id')
+  @UseGuards(SuperAdminGuard)
   async update(@Param('id') id: number, @Body() dto: UpdateAdminDto) {
     await this.service.update(id, dto);
     return sendSuccessRes(true);
@@ -137,6 +142,7 @@ export class AdminController {
 
   // 관리자 삭제
   @Delete('/:id')
+  @UseGuards(SuperAdminGuard)
   async delete(@Param('id') id: number) {
     await this.service.delete(id);
     return sendSuccessRes(true);

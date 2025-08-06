@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './jwt.guard';
+import { JwtAuthGuard } from './guard/jwt.guard';
 import { JwtStrategy } from './jwt.strategy';
 
 @Global()
