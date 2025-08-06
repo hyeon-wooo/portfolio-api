@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -18,11 +19,14 @@ import {
 } from '../domain/admin.exception';
 import { sendFailRes, sendSuccessRes } from 'src/shared/response';
 import { AuthService } from 'src/auth/auth.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME } from 'src/auth/auth.type';
 import { SuperAdminGuard } from 'src/auth/guard/superadmin.guard';
+import { AdmIpGuard } from 'src/auth/guard/admin-ip.guard';
+import { ONE_DAY, ONE_HOUR } from 'src/shared/constant';
 
 @Controller('admin')
+@UseGuards(AdmIpGuard)
 export class AdminController {
   constructor(
     private readonly service: AdminService,
@@ -61,9 +65,9 @@ export class AdminController {
 
   // 로그인
   @Post('/login')
-  async login(@Body() dto: LoginAdminDto, @Res() res: Response): Promise<any> {
+  async login(@Body() body: LoginAdminDto, @Res() res: Response): Promise<any> {
     try {
-      const admin = await this.service.validateLogin(dto);
+      const admin = await this.service.validateLogin(body);
       const token = this.authService.signWithAdmin(admin);
       const refreshToken = this.authService.signRefreshWithAdmin(admin);
 
@@ -71,15 +75,16 @@ export class AdminController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         path: '/',
+        maxAge: ONE_HOUR * 6,
       });
       res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         path: '/',
-        maxAge: 1000 * 60 * 60 * 24 * 7,
+        maxAge: ONE_DAY * 7,
       });
 
-      return res.json(sendSuccessRes({ refreshToken }));
+      return res.json(sendSuccessRes({ accessToken: token, refreshToken }));
     } catch (e) {
       if (e instanceof LoginFailedException)
         return res.json(sendFailRes(e.message, e.code));
@@ -98,10 +103,10 @@ export class AdminController {
 
   // 토큰 재발급
   @Post('/refresh')
-  async refresh(@Res() res: Response) {
+  async refresh(@Req() req: Request, @Res() res: Response) {
     try {
       // 리프레시 토큰 쿠키에서 추출
-      const refreshToken = res.req.cookies['rt'];
+      const refreshToken = req.cookies['rt'];
       if (!refreshToken)
         return res.json(
           sendFailRes('비정상적인 접근입니다.', 'NO_REFRESH_TOKEN'),

@@ -21,6 +21,7 @@ import { BatchModule } from './batch/batch.module';
         database: configService.get<string>('DB_DATABASE'),
         autoLoadEntities: true,
         synchronize: true,
+        logging: false,
       }),
     }),
     AdminModule,

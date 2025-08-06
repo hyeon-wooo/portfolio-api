@@ -44,7 +44,7 @@ export class AuthService {
 
   verifyRefresh(token: string): TJwtPayload | null {
     try {
-      return this.jwtService.verify(token, {
+      return this.jwtService.verify<TJwtPayload>(token, {
         secret: this.configService.get('JWT_REFRESH_SECRET'),
       });
     } catch (e) {
