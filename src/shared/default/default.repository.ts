@@ -5,7 +5,7 @@ import {
   ObjectLiteral,
   Repository,
 } from 'typeorm';
-import { IDefaultRepositoryInterface } from '../default.interface';
+import { IDefaultRepositoryInterface } from './default.interface';
 
 export abstract class DefaultRepository<
   DomainEntity,
@@ -22,8 +22,12 @@ export abstract class DefaultRepository<
   // 조회
   async findOne(
     condition: Partial<Record<keyof DomainEntity, any>>,
+    relations?: Partial<Record<keyof DomainEntity, any>>,
   ): Promise<DomainEntity | null> {
-    const entity = await this.ormRepo.findOne({ where: condition as any });
+    const entity = await this.ormRepo.findOne({
+      where: condition as any,
+      relations: relations as FindOptionsRelations<OrmEntity>,
+    });
     return entity ? this.toDomain(entity) : null;
   }
 

@@ -8,3 +8,8 @@ export class CreateAdminDto {
 }
 
 export class UpdateAdminDto extends PartialType(CreateAdminDto) {}
+
+export class LoginAdminDto {
+  email: string;
+  password: string;
+}

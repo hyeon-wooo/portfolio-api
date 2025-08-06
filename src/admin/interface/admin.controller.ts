@@ -6,31 +6,45 @@ import {
   Param,
   Post,
   Put,
+  Res,
 } from '@nestjs/common';
 import { AdminService } from '../app/admin.service';
 import { Admin } from '../domain/admin.entity';
-import { CreateAdminDto, UpdateAdminDto } from './admin.dto';
-import { EmailAlreadyExistsException } from '../domain/admin.exception';
+import { CreateAdminDto, UpdateAdminDto, LoginAdminDto } from './admin.dto';
+import {
+  EmailAlreadyExistsException,
+  LoginFailedException,
+} from '../domain/admin.exception';
 import { sendFailRes, sendSuccessRes } from 'src/shared/response';
+import { AuthService } from 'src/auth/auth.service';
+import { ERole } from 'src/auth/role.enum';
+import { Response } from 'express';
+import { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME } from 'src/auth/auth.type';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly service: AdminService,
+    private readonly authService: AuthService,
+  ) {}
 
+  // 관리자 목록 조회
   @Get('/')
   async findAll(): Promise<Admin[]> {
-    return this.adminService.findAll();
+    return this.service.findAll();
   }
 
+  // 관리자 조회
   @Get('/:id')
   async findOne(@Param('id') id: number): Promise<Admin | null> {
-    return this.adminService.findOne(id);
+    return this.service.findById(id);
   }
 
+  // 관리자 생성
   @Post('/')
   async create(@Body() dto: CreateAdminDto) {
     try {
-      const created = await this.adminService.create(dto);
+      const created = await this.service.create(dto);
 
       return sendSuccessRes({ id: created.id });
     } catch (error) {
@@ -41,16 +55,90 @@ export class AdminController {
     }
   }
 
-  @Put('/:id')
-  async update(
-    @Param('id') id: number,
-    @Body() dto: UpdateAdminDto,
-  ): Promise<Admin> {
-    return this.adminService.update(id, dto);
+  // 로그인
+  @Post('/login')
+  async login(@Body() dto: LoginAdminDto, @Res() res: Response): Promise<any> {
+    try {
+      const admin = await this.service.validateLogin(dto);
+      const token = this.authService.signWithAdmin(admin);
+      const refreshToken = this.authService.signRefreshWithAdmin(admin);
+
+      res.cookie(ACCESS_COOKIE_NAME, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      });
+      res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+      });
+
+      return res.json(sendSuccessRes({ refreshToken }));
+    } catch (e) {
+      if (e instanceof LoginFailedException)
+        return res.json(sendFailRes(e.message, e.code));
+
+      throw e;
+    }
   }
 
+  // 로그아웃
+  @Post('/logout')
+  async logout(@Res() res: Response) {
+    res.clearCookie(ACCESS_COOKIE_NAME, { path: '/' });
+    res.clearCookie(REFRESH_COOKIE_NAME, { path: '/' });
+    return res.json(sendSuccessRes(true));
+  }
+
+  // 토큰 재발급
+  @Post('/refresh')
+  async refresh(@Res() res: Response) {
+    try {
+      // 리프레시 토큰 쿠키에서 추출
+      const refreshToken = res.req.cookies['rt'];
+      if (!refreshToken)
+        return res.json(
+          sendFailRes('비정상적인 접근입니다.', 'NO_REFRESH_TOKEN'),
+        );
+      // 검증
+      const payload = this.authService.verifyRefresh(refreshToken);
+      if (!payload) return res.json(sendFailRes('토큰이 만료되었습니다.'));
+
+      // access/refresh 토큰 재발급
+      const admin = await this.service.findById(payload.id);
+      if (!admin)
+        return res.json(sendFailRes('존재하지 않는 계정입니다.', 'NO_ACCOUNT'));
+      const accessToken = this.authService.signWithAdmin(admin);
+      const newRefreshToken = this.authService.signRefreshWithAdmin(admin);
+      res.cookie(ACCESS_COOKIE_NAME, accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      });
+      res.cookie('rt', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      });
+      return res.json(sendSuccessRes({ accessToken }));
+    } catch (e) {
+      return res.json(sendFailRes('재발급 실패', 'REFRESH_FAIL'));
+    }
+  }
+
+  // 관리자 수정
+  @Put('/:id')
+  async update(@Param('id') id: number, @Body() dto: UpdateAdminDto) {
+    await this.service.update(id, dto);
+    return sendSuccessRes(true);
+  }
+
+  // 관리자 삭제
   @Delete('/:id')
-  async delete(@Param('id') id: number): Promise<void> {
-    return this.adminService.delete(id);
+  async delete(@Param('id') id: number) {
+    await this.service.delete(id);
+    return sendSuccessRes(true);
   }
 }

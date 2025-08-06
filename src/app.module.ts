@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/interface/admin.module';
+import { BatchModule } from './batch/batch.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AdminModule } from './admin/interface/admin.module';
       }),
     }),
     AdminModule,
+    BatchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

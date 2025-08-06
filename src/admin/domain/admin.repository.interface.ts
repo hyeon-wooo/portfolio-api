@@ -1,4 +1,4 @@
-import { IDefaultRepositoryInterface } from 'src/shared/default.interface';
+import { IDefaultRepositoryInterface } from 'src/shared/default/default.interface';
 import { Admin } from './admin.entity';
 
 export interface IAdminRepository extends IDefaultRepositoryInterface<Admin> {
