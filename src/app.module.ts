@@ -1,14 +1,20 @@
 import { Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/interface/admin.module';
+import { FileModule } from './file/interface/file.module';
 import { BatchModule } from './batch/batch.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -25,6 +31,7 @@ import { BatchModule } from './batch/batch.module';
       }),
     }),
     AdminModule,
+    FileModule,
     BatchModule,
   ],
   controllers: [AppController],

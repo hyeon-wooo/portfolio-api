@@ -37,7 +37,7 @@ export abstract class DefaultRepository<
       relations?: Partial<Record<keyof DomainEntity, any>>;
       limit?: number;
       offset?: number;
-      order: Partial<Record<keyof DomainEntity, 'ASC' | 'DESC'>>;
+      order?: Partial<Record<keyof DomainEntity, 'ASC' | 'DESC'>>;
       withDeleted?: boolean;
     },
   ): Promise<DomainEntity[]> {
