@@ -105,29 +105,16 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script_stop: true
           script: |
-            set -eu
-            # 비대화형 쉘에서 PATH가 짧을 수 있으니 프로파일 로드
-
-            echo $PATH
-
-            [ -f /etc/profile ] && . /etc/profile || true
-            [ -f "$HOME/.profile" ] && . "$HOME/.profile" || true
-            [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc" || true
-            export PATH="/usr/local/bin:/usr/bin:$PATH"
-
+            bash -lc '
+            set -euo pipefail
             cd "${{ secrets.DEPLOY_PATH }}"
-            tar -xzf ${{ env.APP_TAR }}
-
-            if command -v yarn > /dev/null 2>&1; then
-              yarn --version || true
-            else
-              echo "yarn not found" >&2
-              exit 1
-            fi
-
-            yarn install --production --frozen-lockfile
-
+            tar -xzf "${{ env.APP_TAR }}"
+            # export PATH="/usr/local/bin:/usr/bin:$PATH"
+            command -v yarn >/dev/null 2>&1 || { echo "yarn not found (PATH=$PATH)"; exit 1; }
+            yarn --version || true
+            yarn install --frozen-lockfile --production
             yarn start:prod
+            '
 
       - name: Disconnect Wireguard
         if: always()
