@@ -6,7 +6,7 @@ on:
 
 env:
   NODE_VERSION: '22.15'
-  APP_TAR: 'app-${{ github.sha }}.tar.gz'
+  APP_TAR: 'app.tar.gz'
 
 jobs:
   build:
@@ -74,14 +74,14 @@ jobs:
         run: ping -c 3 ${{ secrets.PROD_HOST }}
 
       - name: Send tar to production server
-        uses: appleboy/sftp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.PROD_HOST }}
           port: ${{ secrets.PROD_PORT }}
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           source: '${{ env.APP_TAR }}'
-          target: '${{ secrets.DEPLOY_PATH }}/app.tar.gz'
+          target: '${{ secrets.DEPLOY_PATH }}'
           overwrite: true
 
       - name: Connect SSH and Run applocation
@@ -95,7 +95,7 @@ jobs:
           script: |
             set -euo pipefail
             cd "${{ secrets.DEPLOY_PATH }}"
-            tar -xzf app.tar.gz
+            tar -xzf ${{ env.APP_TAR }}
 
             if command -v yarn > /dev/null 2>&1; then
               yarn install --production --frozen-lockfile
