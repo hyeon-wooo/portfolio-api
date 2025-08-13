@@ -1,0 +1,117 @@
+name: Deploy Portfolio API
+on:
+  push:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '22.15'
+  APP_TAR: "app-${{ github.sha }}.tar.gz"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+        
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Install Dependencies for build
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: yarn build
+
+      - name: Create tar
+        run: |
+          mkdir -p release
+          tar -czf release/${{ APP_TAR }} \
+            dist package.json yarn.lock
+
+      - name: Upload tar
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-tar
+          path: release/${{ APP_TAR }}
+      
+    
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-22.04
+    needs: build
+    permissions:
+      contents: read
+
+    steps:
+    
+      - name: Download tar
+        uses: actions/download-artifact@v4
+        with: { name: app-tar, path: . }
+
+      - name: Install Wireguard
+        run: |
+          sudo apt-get update && sudo apt-get install -y wireguard wireguard-tools
+          
+          sudo wg-quick up wg0
+          sleep 3
+
+      - name: Setup Wireguard config
+        run: |
+          echo "${{ secrets.WG_CONFIG }}" | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          sudo chmod 600 /etc/wireguard/wg0.conf
+
+      - name: Connect Wireguard
+        run: |
+          sudo wg-quick up wg0
+          sleep 5
+          sudo wg show
+
+      - name: Test connecting VPN
+        run: ping -c 3 ${{ secrets.PROD_HOST }}
+
+      - name: Send tar to production server
+        uses: appleboy/sftp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          port: ${{ secrets.PROD_PORT }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "${{ env.APP_TAR }}"
+          target: "${{ secrets.DEPLOY_PATH }}/app.tar.gz"
+          overwrite: true
+
+      - name: Connect SSH and Run applocation
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          port: ${{ secrets.PROD_PORT }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.DEPLOY_PATH }}"
+            tar -xzf app.tar.gz
+
+            if command -v yarn > /dev/null 2>&1; then
+              yarn install --production --frozen-lockfile
+            else
+              echo "yarn not found" >&2
+              exit 1
+            fi
+
+            yarn start:prod
+
+      - name: Disconnect Wireguard
+        if: always()
+        run: sudo wg-quick down wg0
+      
