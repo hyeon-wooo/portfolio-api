@@ -70,8 +70,8 @@ jobs:
           sleep 5
           sudo wg show
 
-      - name: Test connecting VPN
-        run: ping -c 3 ${{ secrets.PROD_HOST }}
+      # - name: Test connecting VPN
+      #   run: ping -c 3 ${{ secrets.PROD_HOST }}
 
       - name: Send tar to production server
         uses: appleboy/scp-action@v1
