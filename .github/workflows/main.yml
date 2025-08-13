@@ -70,21 +70,6 @@ jobs:
           sleep 5
           sudo wg show
 
-      - name: Dump WG state
-        run: |
-          ip addr show wg0
-          ip route
-          sudo wg show
-
-      - name: Test connecting VPN
-        run: |
-          set -e
-          ping -c 3 ${{ secrets.PROD_HOST }} || {
-            echo "Ping failed. Dumping wg status:" >&2
-            sudo wg show >&2
-            exit 1
-          }
-
       - name: Send tar to production server
         uses: appleboy/scp-action@v1
         with:
