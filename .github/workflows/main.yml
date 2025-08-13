@@ -109,7 +109,11 @@ jobs:
             set -euo pipefail
             cd "${{ secrets.DEPLOY_PATH }}"
             tar -xzf "${{ env.APP_TAR }}"
-            source $HOME/.bashrc
+
+            # nvm 로드
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
             # export PATH="/usr/local/bin:/usr/bin:$PATH"
             command -v yarn >/dev/null 2>&1 || { echo "yarn not found (PATH=$PATH)"; exit 1; }
             yarn --version || true
