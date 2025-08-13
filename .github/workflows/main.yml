@@ -57,7 +57,7 @@ jobs:
 
       - name: Install Wireguard
         run: |
-          sudo apt-get update && sudo apt-get install -y wireguard wireguard-tools
+          sudo apt-get update && sudo apt-get install -y wireguard wireguard-tools resolvconf
 
       - name: Setup Wireguard config
         run: |
@@ -84,7 +84,7 @@ jobs:
           target: '${{ secrets.DEPLOY_PATH }}'
           overwrite: true
 
-      - name: Connect SSH and Run applocation
+      - name: Connect SSH and Run application
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.PROD_HOST }}
