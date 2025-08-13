@@ -70,8 +70,20 @@ jobs:
           sleep 5
           sudo wg show
 
-      # - name: Test connecting VPN
-      #   run: ping -c 3 ${{ secrets.PROD_HOST }}
+      - name: Dump WG state
+        run: |
+          ip addr show wg0
+          ip route
+          sudo wg show
+
+      - name: Test connecting VPN
+        run: |
+          set -e
+          ping -c 3 ${{ secrets.PROD_HOST }} || {
+            echo "Ping failed. Dumping wg status:" >&2
+            sudo wg show >&2
+            exit 1
+          }
 
       - name: Send tar to production server
         uses: appleboy/scp-action@v1
@@ -93,16 +105,27 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script_stop: true
           script: |
-            set -euo pipefail
+            set -eu
+            # 비대화형 쉘에서 PATH가 짧을 수 있으니 프로파일 로드
+
+            echo $PATH
+
+            [ -f /etc/profile ] && . /etc/profile || true
+            [ -f "$HOME/.profile" ] && . "$HOME/.profile" || true
+            [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc" || true
+            export PATH="/usr/local/bin:/usr/bin:$PATH"
+
             cd "${{ secrets.DEPLOY_PATH }}"
             tar -xzf ${{ env.APP_TAR }}
 
             if command -v yarn > /dev/null 2>&1; then
-              yarn install --production --frozen-lockfile
+              yarn --version || true
             else
               echo "yarn not found" >&2
               exit 1
             fi
+
+            yarn install --production --frozen-lockfile
 
             yarn start:prod
 
