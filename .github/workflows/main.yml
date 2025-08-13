@@ -4,6 +4,10 @@ on:
     branches:
       - main
 
+  concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
 env:
   NODE_VERSION: '22.15'
   APP_TAR: 'app.tar.gz'
