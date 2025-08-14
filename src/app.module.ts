@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/interface/admin.module';
 import { FileModule } from './file/interface/file.module';
 import { BatchModule } from './batch/batch.module';
+import { TechCategoryModule } from './tech-category/interface/tech-category.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { BatchModule } from './batch/batch.module';
     AdminModule,
     FileModule,
     BatchModule,
+    TechCategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

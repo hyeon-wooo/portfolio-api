@@ -9,17 +9,17 @@ export class FileOrmEntity extends DefaultOrmEntity {
   @Column({ type: 'varchar', length: 50, comment: '용도' })
   usage: EFileUsage;
 
-  @Column({ type: 'varchar', length: 255, comment: '원본 파일명' })
+  @Column({ name: 'original_name', length: 255, comment: '원본 파일명' })
   originalName: string;
 
   @Column({
-    type: 'varchar',
+    name: 'relative_path',
     length: 255,
     comment: '저장 상대 경로 usage/YYYY/MM/DD/uuid.ext',
   })
   relativePath: string;
 
-  @Column({ type: 'varchar', length: 10, comment: '확장자' })
+  @Column({ length: 10, comment: '확장자' })
   extension: string;
 
   @Column({ type: 'int', comment: '파일 크기(byte)' })

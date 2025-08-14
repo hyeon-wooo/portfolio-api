@@ -6,6 +6,7 @@ import {
   Repository,
 } from 'typeorm';
 import { IDefaultRepositoryInterface } from './default.interface';
+import { EntityNotFoundException } from './default.exception';
 
 export abstract class DefaultRepository<
   DomainEntity,
@@ -80,7 +81,7 @@ export abstract class DefaultRepository<
   ): Promise<DomainEntity> {
     await this.ormRepo.update(id, data as any);
     const updated = await this.ormRepo.findOne({ where: { id } as any });
-    if (!updated) throw new Error('Entity not found');
+    if (!updated) throw new EntityNotFoundException('Entity not found');
     return this.toDomain(updated);
   }
 
