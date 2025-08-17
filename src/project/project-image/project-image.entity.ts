@@ -11,7 +11,14 @@ export class ProjectImageEntity extends DefaultOrmEntity {
   @Column('int', { name: 'file_id', comment: '파일 ID (file.id)' })
   fileId: number;
 
-  @Column('int', { name: 'sequence', comment: '순서. 높을 수록 우선.' })
+  @Column('varchar', { name: 'name', comment: '이미지 이름', default: '' })
+  name: string;
+
+  @Column('int', {
+    name: 'sequence',
+    comment: '순서. 높을 수록 우선.',
+    default: 10,
+  })
   sequence: number;
 
   @ManyToOne(() => ProjectEntity, (project) => project.images)

@@ -47,12 +47,9 @@ export class DeleteSkillBodyDto extends IdsDto {}
 
 export class SkillListItemDto {
   constructor(entity: SkillEntity) {
-    this.id = entity.id;
     this.name = entity.name;
     this.imageUrl = entity.file?.url || '';
   }
-
-  id: number;
 
   name: string;
 

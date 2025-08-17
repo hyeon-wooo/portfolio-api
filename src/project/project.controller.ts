@@ -48,7 +48,7 @@ export class ProjectController {
       relations: {
         thumbnail: true,
         skillProjects: {
-          skill: true,
+          skill: { file: true },
         },
       },
     };
@@ -80,10 +80,10 @@ export class ProjectController {
       {
         thumbnail: true,
         skillProjects: {
-          skill: true,
+          skill: { file: true },
         },
         contents: true,
-        images: true,
+        images: { file: true },
         links: true,
       },
     );

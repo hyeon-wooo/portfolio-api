@@ -3,7 +3,7 @@ import { DefaultOrmEntity } from 'src/shared/default/default.entity.orm';
 import { EProjectContentKind } from 'src/project/project.enum';
 import { ProjectEntity } from '../project.entity';
 
-@Entity()
+@Entity({ name: 'project_content', comment: '프로젝트 내용' })
 export class ProjectContentEntity extends DefaultOrmEntity {
   @Column({ comment: '내용' })
   content: string;

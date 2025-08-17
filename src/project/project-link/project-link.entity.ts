@@ -10,6 +10,9 @@ export class ProjectLinkEntity extends DefaultOrmEntity {
   @Column({ name: 'url', comment: '링크 주소' })
   url: string;
 
+  @Column({ name: 'sequence', comment: '순서. 높을 수록 우선.', default: 10 })
+  sequence: number;
+
   @Column({ name: 'project_id', comment: '프로젝트 ID' })
   projectId: number;
 

@@ -12,7 +12,9 @@ export class UploadFileBodyDto {
 }
 
 export class FileListItemDto {
-  constructor(entity: FileEntity) {
+  constructor(entity?: FileEntity) {
+    if (!entity) return;
+
     this.id = entity.id;
     this.url = entity.url || '';
   }

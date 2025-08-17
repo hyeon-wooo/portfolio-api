@@ -26,10 +26,10 @@ export class CreateProjectBodyDto {
   summary: string;
 
   @IsDateString()
-  startDate: Date;
+  startDate: string;
 
   @IsDateString()
-  endDate: Date;
+  endDate: string;
 
   @IsNumber()
   thumbnailId: number;
@@ -42,8 +42,10 @@ export class CreateProjectBodyDto {
   }[];
 
   @IsArray()
-  @IsNumber({}, { each: true })
-  imageIds: number[];
+  images: {
+    name: string;
+    fileId: number;
+  }[];
 
   @IsArray()
   @IsNumber({}, { each: true })
@@ -109,18 +111,14 @@ export class ProjectListItemDto {
 
 class ProjectContentItemDto {
   constructor(entity: ProjectContentEntity) {
-    this.id = entity.id;
     this.kind = entity.kind;
-    this.sequence = entity.sequence;
     this.content = entity.content;
     this.children = [];
   }
 
-  id: number;
   kind: EProjectContentKind;
-  sequence: number;
   content: string;
-  children: ProjectContentItemDto[];
+  children: string[];
 }
 
 class ProjectLinkListItemDto {
@@ -140,34 +138,62 @@ export class ProjectDetailDto extends ProjectListItemDto {
 
     this.images = entity.images
       .sort((a, b) => b.sequence - a.sequence)
-      .map((image) => new FileListItemDto(image.file));
+      .map((image) => {
+        return {
+          name: image.name,
+          url: image.file.url ?? '',
+        };
+      });
 
     this.links = entity.links.map((link) => new ProjectLinkListItemDto(link));
 
     // 컨텐츠 파싱 및 정렬
     const contentDict = entity.contents.reduce<
-      Record<number, ProjectContentItemDto>
+      Record<
+        number,
+        {
+          item: ProjectContentItemDto;
+          sequence: number;
+          children: { item: ProjectContentItemDto; sequence: number }[];
+        }
+      >
     >((acc, cur) => {
       if (!cur.parentId) {
-        acc[cur.id] = new ProjectContentItemDto(cur);
+        acc[cur.id] = {
+          item: new ProjectContentItemDto(cur),
+          sequence: cur.sequence,
+          children: [],
+        };
         return acc;
       }
-      acc[cur.parentId].children.push(new ProjectContentItemDto(cur));
+      acc[cur.parentId].children.push({
+        item: new ProjectContentItemDto(cur),
+        sequence: cur.sequence,
+      });
       return acc;
     }, {});
 
-    this.contents = Object.values(contentDict).sort(
+    const temp = Object.values(contentDict).sort(
       (a, b) => b.sequence - a.sequence,
     );
-    this.contents.forEach((content) => {
-      if (!content.children.length) return;
-      content.children.sort((a, b) => b.sequence - a.sequence);
+    this.contents = temp.map((cur) => {
+      const { item, sequence, children } = cur;
+      if (children.length) {
+        const sortedChildren = children
+          .sort((a, b) => b.sequence - a.sequence)
+          .map((child) => child.item.content);
+        item.children = sortedChildren;
+      }
+      return item;
     });
   }
 
   contents: ProjectContentItemDto[];
 
-  images: FileListItemDto[];
+  images: {
+    name: string;
+    url: string;
+  }[];
 
   links: ProjectLinkListItemDto[];
 }
