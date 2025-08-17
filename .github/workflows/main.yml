@@ -108,6 +108,7 @@ jobs:
             yarn --version || true
             yarn install --frozen-lockfile --production
             yarn start:prod
+            rm -rf "${{ env.APP_TAR }}"
             '
 
       - name: Disconnect Wireguard
