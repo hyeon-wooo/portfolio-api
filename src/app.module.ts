@@ -8,7 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/interface/admin.module';
 import { FileModule } from './file/interface/file.module';
 import { BatchModule } from './batch/batch.module';
-import { TechCategoryModule } from './tech-category/interface/tech-category.module';
+import { SkillModule } from './skill/interface/skill.module';
 
 @Module({
   imports: [
@@ -34,7 +34,7 @@ import { TechCategoryModule } from './tech-category/interface/tech-category.modu
     AdminModule,
     FileModule,
     BatchModule,
-    TechCategoryModule,
+    SkillModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -2,6 +2,8 @@ import {
   FindManyOptions,
   FindOptions,
   FindOptionsRelations,
+  FindOptionsWhere,
+  In,
   ObjectLiteral,
   Repository,
 } from 'typeorm';
@@ -100,17 +102,17 @@ export abstract class DefaultRepository<
 
   // 삭제
   async deleteById(id: number): Promise<void> {
-    await this.ormRepo.delete(id);
+    await this.ormRepo.softRemove({ id } as any);
   }
 
   async deleteManyById(ids: number[]): Promise<void> {
-    await this.ormRepo.delete(ids as any);
+    await this.ormRepo.softDelete(ids);
   }
 
   async deleteMany(
     condition: Partial<Record<keyof DomainEntity, any>>,
   ): Promise<void> {
     const entities = await this.ormRepo.find({ where: condition as any });
-    await this.ormRepo.remove(entities);
+    await this.ormRepo.softRemove(entities);
   }
 }

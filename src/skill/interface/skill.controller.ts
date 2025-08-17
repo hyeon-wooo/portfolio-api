@@ -9,12 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { TechCategoryService } from '../app/tech-category.service';
+import { SkillService } from '../app/skill.service';
 import {
-  CreateTechCategoryBodyDto,
-  DeleteTechCategoryBodyDto,
-  UpdateTechCategoryBodyDto,
-} from './tech-category.dto';
+  CreateSkillBodyDto,
+  DeleteSkillBodyDto,
+  UpdateSkillBodyDto,
+} from './skill.dto';
 import { sendFailRes, sendSuccessRes } from 'src/shared/response';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { RoleGuard } from 'src/auth/guard/role.guard';
@@ -24,9 +24,9 @@ import { FileService } from 'src/file/app/file.service';
 import { FileNotFoundException } from 'src/file/domain/file.exception';
 import { EntityNotFoundException } from 'src/shared/default/default.exception';
 
-@Controller('tech-category')
-export class TechCategoryController {
-  constructor(private readonly service: TechCategoryService) {}
+@Controller('skill')
+export class SkillController {
+  constructor(private readonly service: SkillService) {}
 
   @Get('/')
   async findAll() {
@@ -40,7 +40,7 @@ export class TechCategoryController {
   @Post('/')
   @Roles(ERole.ADM)
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async create(@Body() body: CreateTechCategoryBodyDto) {
+  async create(@Body() body: CreateSkillBodyDto) {
     try {
       const created = await this.service.create(body);
       return sendSuccessRes({
@@ -57,10 +57,7 @@ export class TechCategoryController {
   @Put('/:id')
   @Roles(ERole.ADM)
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async update(
-    @Param('id') idStr: string,
-    @Body() body: UpdateTechCategoryBodyDto,
-  ) {
+  async update(@Param('id') idStr: string, @Body() body: UpdateSkillBodyDto) {
     try {
       const id = Number(idStr);
       const updated = await this.service.update(id, body);
@@ -79,7 +76,7 @@ export class TechCategoryController {
   @Delete('/')
   @Roles(ERole.ADM)
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async deleteMany(@Body() body: DeleteTechCategoryBodyDto) {
+  async deleteMany(@Body() body: DeleteSkillBodyDto) {
     await this.service.deleteMany(body.ids);
     return sendSuccessRes(true);
   }
