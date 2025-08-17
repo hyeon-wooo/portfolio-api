@@ -9,7 +9,7 @@ import { ProjectImageEntity } from './project-image/project-image.entity';
 @Entity()
 export class ProjectEntity extends DefaultOrmEntity {
   @Column({ comment: '프로젝트 이름' })
-  name: string;
+  title: string;
 
   @Column({ comment: '개발파트 구분' })
   part: EProjectPart;

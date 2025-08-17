@@ -9,6 +9,14 @@ import {
 } from 'typeorm';
 import { EntityNotFoundException } from './default/default.exception';
 
+export type TFindManyOptions<Entity> = {
+  relations?: Partial<Record<keyof Entity, any>>;
+  limit?: number;
+  offset?: number;
+  order?: Partial<Record<keyof Entity, 'ASC' | 'DESC'>>;
+  withDeleted?: boolean;
+};
+
 export class CRUDService<Entity extends ObjectLiteral> {
   constructor(protected readonly repo: Repository<Entity>) {}
 
@@ -26,13 +34,7 @@ export class CRUDService<Entity extends ObjectLiteral> {
 
   async findMany(
     condition?: Partial<Record<keyof Entity, any>>,
-    options?: {
-      relations?: Partial<Record<keyof Entity, any>>;
-      limit?: number;
-      offset?: number;
-      order?: Partial<Record<keyof Entity, 'ASC' | 'DESC'>>;
-      withDeleted?: boolean;
-    },
+    options?: TFindManyOptions<Entity>,
   ): Promise<Entity[]> {
     const findOptions: FindManyOptions<Entity> = { where: condition as any };
     if (options?.relations)
@@ -107,5 +109,9 @@ export class CRUDService<Entity extends ObjectLiteral> {
 
   async deleteByWhere(condition: FindOptionsWhere<Entity>): Promise<void> {
     await this.repo.softRemove(condition as any);
+  }
+
+  async count(condition?: FindOptionsWhere<Entity>): Promise<number> {
+    return this.repo.count({ where: condition ?? {} });
   }
 }

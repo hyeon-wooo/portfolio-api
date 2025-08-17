@@ -5,13 +5,13 @@ import { FileEntity } from 'src/file/file.entity';
 
 @Entity({ name: 'project_image', comment: '프로젝트 첨부사진' })
 export class ProjectImageEntity extends DefaultOrmEntity {
-  @Column({ name: 'project_id', comment: '프로젝트 ID (project.id)' })
+  @Column('int', { name: 'project_id', comment: '프로젝트 ID (project.id)' })
   projectId: number;
 
-  @Column({ name: 'file_id', comment: '파일 ID (file.id)' })
+  @Column('int', { name: 'file_id', comment: '파일 ID (file.id)' })
   fileId: number;
 
-  @Column({ name: 'sequence', comment: '순서. 높을 수록 우선.' })
+  @Column('int', { name: 'sequence', comment: '순서. 높을 수록 우선.' })
   sequence: number;
 
   @ManyToOne(() => ProjectEntity, (project) => project.images)
