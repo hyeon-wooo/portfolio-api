@@ -7,6 +7,8 @@ import { ProjectContentEntity } from './project-content/project-content.entity';
 import { ProjectContentService } from './project-content/project-content.service';
 import { ProjectImageEntity } from './project-image/project-image.entity';
 import { ProjectImageService } from './project-image/project-image.service';
+import { ProjectLinkEntity } from './project-link/project-link.entity';
+import { ProjectLinkService } from './project-link/project-link.service';
 
 @Module({
   imports: [
@@ -14,10 +16,16 @@ import { ProjectImageService } from './project-image/project-image.service';
       ProjectEntity,
       ProjectContentEntity,
       ProjectImageEntity,
+      ProjectLinkEntity,
     ]),
   ],
   controllers: [ProjectController],
-  providers: [ProjectService, ProjectContentService, ProjectImageService],
+  providers: [
+    ProjectService,
+    ProjectContentService,
+    ProjectImageService,
+    ProjectLinkService,
+  ],
   exports: [ProjectService],
 })
 export class ProjectModule {}

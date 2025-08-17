@@ -13,6 +13,7 @@ import { Transform } from 'class-transformer';
 import { ProjectEntity } from './project.entity';
 import { ProjectContentEntity } from './project-content/project-content.entity';
 import { FileListItemDto } from 'src/file/file.dto';
+import { ProjectLinkEntity } from './project-link/project-link.entity';
 
 export class CreateProjectBodyDto {
   @IsString()
@@ -47,6 +48,12 @@ export class CreateProjectBodyDto {
   @IsArray()
   @IsNumber({}, { each: true })
   skillIds: number[];
+
+  @IsArray()
+  links: {
+    name: string;
+    url: string;
+  }[];
 }
 
 export class UpdateProjectBodyDto extends CreateProjectBodyDto {}
@@ -115,6 +122,18 @@ class ProjectContentItemDto {
   content: string;
   children: ProjectContentItemDto[];
 }
+
+class ProjectLinkListItemDto {
+  constructor(entity: ProjectLinkEntity) {
+    this.name = entity.name;
+    this.url = entity.url;
+  }
+
+  id: number;
+  name: string;
+  url: string;
+}
+
 export class ProjectDetailDto extends ProjectListItemDto {
   constructor(entity: ProjectEntity) {
     super(entity);
@@ -122,6 +141,8 @@ export class ProjectDetailDto extends ProjectListItemDto {
     this.images = entity.images
       .sort((a, b) => b.sequence - a.sequence)
       .map((image) => new FileListItemDto(image.file));
+
+    this.links = entity.links.map((link) => new ProjectLinkListItemDto(link));
 
     // 컨텐츠 파싱 및 정렬
     const contentDict = entity.contents.reduce<
@@ -147,4 +168,6 @@ export class ProjectDetailDto extends ProjectListItemDto {
   contents: ProjectContentItemDto[];
 
   images: FileListItemDto[];
+
+  links: ProjectLinkListItemDto[];
 }

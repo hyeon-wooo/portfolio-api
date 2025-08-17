@@ -8,6 +8,7 @@ import { ProjectContentService } from './project-content/project-content.service
 import { CreateProjectBodyDto, UpdateProjectBodyDto } from './project.dto';
 import { SkillProjectMapService } from 'src/nm-relation/skill-project/skill-project.service';
 import { EProjectContentKind } from './project.enum';
+import { ProjectLinkService } from './project-link/project-link.service';
 
 @Injectable()
 export class ProjectService extends CRUDService<ProjectEntity> {
@@ -15,6 +16,7 @@ export class ProjectService extends CRUDService<ProjectEntity> {
     @InjectRepository(ProjectEntity) repo: Repository<ProjectEntity>,
     private projectContentService: ProjectContentService,
     private projectImageService: ProjectImageService,
+    private projectLinkService: ProjectLinkService,
     private skillProjectService: SkillProjectMapService,
   ) {
     super(repo);
@@ -34,6 +36,7 @@ export class ProjectService extends CRUDService<ProjectEntity> {
       skillIds: body.skillIds,
       imageIds: body.imageIds,
       content: body.contents,
+      links: body.links,
     });
 
     return project;
@@ -56,6 +59,7 @@ export class ProjectService extends CRUDService<ProjectEntity> {
       skillIds: body.skillIds,
       imageIds: body.imageIds,
       content: body.contents,
+      links: body.links,
     });
   }
 
@@ -63,6 +67,7 @@ export class ProjectService extends CRUDService<ProjectEntity> {
     await this.projectContentService.deleteMany({ projectId: id });
     await this.projectImageService.deleteMany({ projectId: id });
     await this.skillProjectService.deleteMany({ projectId: id });
+    await this.projectLinkService.deleteMany({ projectId: id });
 
     await this.deleteById(id);
   }
@@ -77,6 +82,10 @@ export class ProjectService extends CRUDService<ProjectEntity> {
         kind: EProjectContentKind;
         content: string;
         children?: string[];
+      }[];
+      links: {
+        name: string;
+        url: string;
       }[];
     },
   ) {
@@ -115,6 +124,15 @@ export class ProjectService extends CRUDService<ProjectEntity> {
     await this.skillProjectService.createMany(
       metadata.skillIds.map((skillId) => ({
         skillId,
+        projectId,
+      })),
+    );
+
+    // 링크 추가
+    await this.projectLinkService.createMany(
+      metadata.links.map((link) => ({
+        name: link.name,
+        url: link.url,
         projectId,
       })),
     );

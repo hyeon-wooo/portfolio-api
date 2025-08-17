@@ -84,6 +84,7 @@ export class ProjectController {
         },
         contents: true,
         images: true,
+        links: true,
       },
     );
     if (!project) return sendFailRes('접근할 수 없는 프로젝트입니다.');

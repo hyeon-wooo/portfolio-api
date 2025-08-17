@@ -5,6 +5,7 @@ import { ProjectContentEntity } from './project-content/project-content.entity';
 import { FileEntity } from 'src/file/file.entity';
 import { SkillProjectMapEntity } from 'src/nm-relation/skill-project/skill-project.entity';
 import { ProjectImageEntity } from './project-image/project-image.entity';
+import { ProjectLinkEntity } from './project-link/project-link.entity';
 
 @Entity()
 export class ProjectEntity extends DefaultOrmEntity {
@@ -42,4 +43,7 @@ export class ProjectEntity extends DefaultOrmEntity {
 
   @OneToMany(() => ProjectImageEntity, (image) => image.project)
   images: ProjectImageEntity[];
+
+  @OneToMany(() => ProjectLinkEntity, (link) => link.project)
+  links: ProjectLinkEntity[];
 }
