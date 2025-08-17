@@ -22,6 +22,7 @@ import { Roles } from 'src/auth/decorator/role.decorator';
 import { ERole } from 'src/auth/role.enum';
 import { FileNotFoundException } from 'src/file/file.exception';
 import { EntityNotFoundException } from 'src/shared/default/default.exception';
+import { ActivateBodyDto } from 'src/shared/default/default.dto';
 
 @Controller('skill')
 export class SkillController {
@@ -50,6 +51,21 @@ export class SkillController {
 
       throw e;
     }
+  }
+
+  // 필터 활성화
+  @Post('/:id/activate/filter')
+  @Roles(ERole.ADM)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async activateFilter(
+    @Param('id') idStr: string,
+    @Body() body: ActivateBodyDto,
+  ) {
+    const id = Number(idStr);
+    await this.service.updateById(id, {
+      isActiveFilter: body.active,
+    });
+    return sendSuccessRes(true);
   }
 
   // 수정

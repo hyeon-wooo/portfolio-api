@@ -15,6 +15,13 @@ export class SkillEntity extends DefaultOrmEntity {
   @Column('enum', { name: 'level', comment: '기술수준', enum: ESkillLevel })
   level: ESkillLevel;
 
+  @Column('boolean', {
+    name: 'is_active_filter',
+    comment: '프로젝트 조회 시 필터항목에 표시할지 여부',
+    default: true,
+  })
+  isActiveFilter: boolean;
+
   @Column('int', { name: 'file_id', comment: '이미지파일ID (file.id)' })
   fileId: number;
 

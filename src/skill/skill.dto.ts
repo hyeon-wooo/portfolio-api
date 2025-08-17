@@ -43,3 +43,11 @@ export class CreateSkillBodyDto {
 export class UpdateSkillBodyDto extends CreateSkillBodyDto {}
 
 export class DeleteSkillBodyDto extends IdsDto {}
+
+export class SkillListItemDto {
+  id: number;
+
+  name: string;
+
+  imageUrl: string;
+}
