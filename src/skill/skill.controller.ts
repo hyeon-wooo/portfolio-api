@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { SkillService } from '../app/skill.service';
+import { SkillService } from './skill.service';
 import {
   CreateSkillBodyDto,
   DeleteSkillBodyDto,
@@ -21,7 +21,7 @@ import { RoleGuard } from 'src/auth/guard/role.guard';
 import { Roles } from 'src/auth/decorator/role.decorator';
 import { ERole } from 'src/auth/role.enum';
 import { FileService } from 'src/file/app/file.service';
-import { FileNotFoundException } from 'src/file/domain/file.exception';
+import { FileNotFoundException } from 'src/file/file.exception';
 import { EntityNotFoundException } from 'src/shared/default/default.exception';
 
 @Controller('skill')

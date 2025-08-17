@@ -1,9 +1,9 @@
 import { DefaultOrmEntity } from 'src/shared/default/default.entity.orm';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { SkillOrmEntity } from '../skill.entity.orm';
+import { SkillEntity } from '../skill.entity';
 
 @Entity({ name: 'skill_content', comment: '기술내용' })
-export class SkillContentOrmEntity extends DefaultOrmEntity {
+export class SkillContentEntity extends DefaultOrmEntity {
   @Column('int', { name: 'skill_id', comment: '기술ID (skill.id)' })
   skillId: number;
 
@@ -13,7 +13,7 @@ export class SkillContentOrmEntity extends DefaultOrmEntity {
   @Column('int', { name: 'sequence', comment: '순서', default: 10 })
   sequence: number;
 
-  @ManyToOne(() => SkillOrmEntity)
+  @ManyToOne(() => SkillEntity)
   @JoinColumn({ name: 'skill_id' })
-  skill: SkillOrmEntity;
+  skill: SkillEntity;
 }

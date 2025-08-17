@@ -2,7 +2,7 @@ import { DefaultOrmEntity } from 'src/shared/default/default.entity.orm';
 import { Entity, Column } from 'typeorm';
 
 @Entity({ name: 'admin', comment: '관리자' })
-export class AdminOrmEntity extends DefaultOrmEntity {
+export class AdminEntity extends DefaultOrmEntity {
   @Column({ length: 50, comment: '이름' })
   name: string;
 

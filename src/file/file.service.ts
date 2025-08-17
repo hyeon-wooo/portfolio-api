@@ -2,28 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { join } from 'path';
 import { mkdirSync, existsSync, copyFileSync, renameSync } from 'fs';
-import { EFileUsage } from '../domain/file.enum';
-import { FileRepository } from '../infra/file.repository';
-import { File } from '../domain/file.entity';
+import { EFileUsage } from './file.enum';
+import { CRUDService } from 'src/shared/crud.service';
+import { FileEntity } from './file.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class FileService {
-  constructor(private readonly repo: FileRepository) {}
-
-  async findOne(
-    condition: Partial<Record<keyof File, any>>,
-    relations?: Partial<Record<keyof File, any>>,
+export class FileService extends CRUDService<FileEntity> {
+  constructor(
+    @InjectRepository(FileEntity)
+    repo: Repository<FileEntity>,
   ) {
-    return this.repo.findOne(condition, relations);
-  }
-
-  async findMany(
-    condition: Partial<Record<keyof File, any>>,
-    relations?: Partial<Record<keyof File, any>>,
-  ) {
-    return this.repo.findMany(condition, {
-      relations,
-    });
+    super(repo);
   }
 
   getImagePublicUrl(filename: string): string {
@@ -58,7 +49,7 @@ export class FileService {
     mimetype: string;
     relativePath: string;
   }) {
-    const saved = await this.repo.createOne({
+    const saved = await this.createOne({
       usage: params.usage,
       originalName: params.originalName,
       extension: params.extension,
@@ -96,10 +87,10 @@ export class FileService {
   }
 
   async activateFile(fileId: number): Promise<{ url: string } | null> {
-    const meta = await this.repo.findOne({ id: fileId });
+    const meta = await this.findOne({ id: fileId });
     if (!meta) return null;
     const url = this.activateToPublicImage(meta.relativePath);
-    await this.repo.updateById(fileId, { active: true });
+    await this.updateById(fileId, { active: true });
     return { url };
   }
 }

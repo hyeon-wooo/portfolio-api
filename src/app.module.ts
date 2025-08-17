@@ -5,10 +5,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AdminModule } from './admin/interface/admin.module';
-import { FileModule } from './file/interface/file.module';
+import { AdminModule } from './admin/admin.module';
+import { FileModule } from './file/file.module';
 import { BatchModule } from './batch/batch.module';
-import { SkillModule } from './skill/interface/skill.module';
+import { SkillModule } from './skill/skill.module';
+import { NMRelationModule } from './nm-relation/nm-relation.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SkillModule } from './skill/interface/skill.module';
     FileModule,
     BatchModule,
     SkillModule,
+    NMRelationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

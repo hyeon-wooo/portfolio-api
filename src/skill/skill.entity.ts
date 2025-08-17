@@ -1,11 +1,11 @@
-import { FileOrmEntity } from 'src/file/infra/file.entity.orm';
 import { DefaultOrmEntity } from 'src/shared/default/default.entity.orm';
 import { Entity, Column, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { ESkillLevel } from '../domain/skill.enum';
-import { SkillContentOrmEntity } from './skill-content/skill-content.entity.orm';
+import { ESkillLevel } from './skill.enum';
+import { SkillContentEntity } from './skill-content/skill-content.entity';
+import { FileEntity } from 'src/file/file.entity';
 
 @Entity({ name: 'skill', comment: '기술스택' })
-export class SkillOrmEntity extends DefaultOrmEntity {
+export class SkillEntity extends DefaultOrmEntity {
   @Column({ length: 50, comment: '이름' })
   name: string;
 
@@ -18,10 +18,10 @@ export class SkillOrmEntity extends DefaultOrmEntity {
   @Column('int', { name: 'file_id', comment: '이미지파일ID (file.id)' })
   fileId: number;
 
-  @ManyToOne(() => FileOrmEntity)
+  @ManyToOne(() => FileEntity)
   @JoinColumn({ name: 'file_id' })
-  file: FileOrmEntity | null;
+  file: FileEntity | null;
 
-  @OneToMany(() => SkillContentOrmEntity, (content) => content.skill)
-  contents: SkillContentOrmEntity[];
+  @OneToMany(() => SkillContentEntity, (content) => content.skill)
+  contents: SkillContentEntity[];
 }

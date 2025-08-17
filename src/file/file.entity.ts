@@ -1,9 +1,9 @@
 import { DefaultOrmEntity } from 'src/shared/default/default.entity.orm';
 import { AfterLoad, Column, Entity } from 'typeorm';
-import { EFileUsage } from '../domain/file.enum';
+import { EFileUsage } from './file.enum';
 
 @Entity({ name: 'file', comment: '업로드 파일' })
-export class FileOrmEntity extends DefaultOrmEntity {
+export class FileEntity extends DefaultOrmEntity {
   url: string | null;
 
   @Column({ type: 'varchar', length: 50, comment: '용도' })

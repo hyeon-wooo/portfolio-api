@@ -19,10 +19,10 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { RoleGuard } from 'src/auth/guard/role.guard';
 import { Roles } from 'src/auth/decorator/role.decorator';
 import { ERole } from 'src/auth/role.enum';
-import { FileService } from '../app/file.service';
+import { FileService } from './file.service';
 import { Body, Param } from '@nestjs/common';
 import { UploadFileBodyDto } from './file.dto';
-import { EFileUsage } from '../domain/file.enum';
+import { EFileUsage } from './file.enum';
 import { existsSync, mkdirSync } from 'fs';
 import { sendFailRes } from 'src/shared/response';
 

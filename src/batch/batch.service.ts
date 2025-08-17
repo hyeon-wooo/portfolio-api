@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Timeout } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
-import { AdminService } from '../admin/app/admin.service';
+import { AdminService } from '../admin/admin.service';
 
 @Injectable()
 export class BatchService {
@@ -27,7 +27,7 @@ export class BatchService {
       this.logger.warn('ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD 환경변수 필요');
       return;
     }
-    await this.adminService.create({ name, email, password, level: 100 });
+    await this.adminService.createOne({ name, email, password, level: 100 });
     this.logger.log('슈퍼관리자 계정 생성 완료');
   }
 }

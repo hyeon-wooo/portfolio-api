@@ -10,13 +10,12 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AdminService } from '../app/admin.service';
-import { Admin } from '../domain/admin.entity';
+import { AdminService } from './admin.service';
 import { CreateAdminDto, UpdateAdminDto, LoginAdminDto } from './admin.dto';
 import {
   EmailAlreadyExistsException,
   LoginFailedException,
-} from '../domain/admin.exception';
+} from './admin.exception';
 import { sendFailRes, sendSuccessRes } from 'src/shared/response';
 import { AuthService } from 'src/auth/auth.service';
 import { Request, Response } from 'express';
@@ -24,6 +23,7 @@ import { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME } from 'src/auth/auth.type';
 import { SuperAdminGuard } from 'src/auth/guard/superadmin.guard';
 import { AdmIpGuard } from 'src/auth/guard/admin-ip.guard';
 import { ONE_DAY, ONE_HOUR } from 'src/shared/constant';
+import { AdminEntity } from './admin.entity';
 
 @Controller('admin')
 @UseGuards(AdmIpGuard)
@@ -33,26 +33,12 @@ export class AdminController {
     private readonly authService: AuthService,
   ) {}
 
-  // 관리자 목록 조회
-  @Get('/')
-  @UseGuards(SuperAdminGuard)
-  async findAll(): Promise<Admin[]> {
-    return this.service.findAll();
-  }
-
-  // 관리자 조회
-  @Get('/:id')
-  @UseGuards(SuperAdminGuard)
-  async findOne(@Param('id') id: number): Promise<Admin | null> {
-    return this.service.findById(id);
-  }
-
   // 관리자 생성
   @Post('/')
   @UseGuards(SuperAdminGuard)
   async create(@Body() dto: CreateAdminDto) {
     try {
-      const created = await this.service.create(dto);
+      const created = await this.service.createOne(dto);
 
       return sendSuccessRes({ id: created.id });
     } catch (error) {
@@ -116,7 +102,7 @@ export class AdminController {
       if (!payload) return res.json(sendFailRes('토큰이 만료되었습니다.'));
 
       // access/refresh 토큰 재발급
-      const admin = await this.service.findById(payload.id);
+      const admin = await this.service.findOne({ id: payload.id });
       if (!admin)
         return res.json(sendFailRes('존재하지 않는 계정입니다.', 'NO_ACCOUNT'));
       const accessToken = this.authService.signWithAdmin(admin);
@@ -141,7 +127,7 @@ export class AdminController {
   @Put('/:id')
   @UseGuards(SuperAdminGuard)
   async update(@Param('id') id: number, @Body() dto: UpdateAdminDto) {
-    await this.service.update(id, dto);
+    await this.service.updateById(id, dto);
     return sendSuccessRes(true);
   }
 
@@ -149,7 +135,7 @@ export class AdminController {
   @Delete('/:id')
   @UseGuards(SuperAdminGuard)
   async delete(@Param('id') id: number) {
-    await this.service.delete(id);
+    await this.service.deleteById(id);
     return sendSuccessRes(true);
   }
 }
