@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { FileModule } from './file/file.module';
 import { BatchModule } from './batch/batch.module';
 import { SkillModule } from './skill/skill.module';
+import { ProjectModule } from './project/project.module';
 import { NMRelationModule } from './nm-relation/nm-relation.module';
 
 @Module({
@@ -36,6 +37,7 @@ import { NMRelationModule } from './nm-relation/nm-relation.module';
     FileModule,
     BatchModule,
     SkillModule,
+    ProjectModule,
     NMRelationModule,
   ],
   controllers: [AppController],

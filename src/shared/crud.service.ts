@@ -82,6 +82,13 @@ export class CRUDService<Entity extends ObjectLiteral> {
     return updatedEntities;
   }
 
+  async updateByWhere(
+    condition: FindOptionsWhere<Entity>,
+    data: Partial<Entity>,
+  ): Promise<void> {
+    await this.repo.update(condition as any, data);
+  }
+
   // 삭제
   async deleteById(id: number): Promise<void> {
     await this.repo.softRemove({ id } as any);
@@ -96,5 +103,9 @@ export class CRUDService<Entity extends ObjectLiteral> {
   ): Promise<void> {
     const entities = await this.repo.find({ where: condition as any });
     await this.repo.softRemove(entities);
+  }
+
+  async deleteByWhere(condition: FindOptionsWhere<Entity>): Promise<void> {
+    await this.repo.softRemove(condition as any);
   }
 }

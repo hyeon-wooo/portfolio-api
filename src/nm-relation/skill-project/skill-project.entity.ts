@@ -1,4 +1,4 @@
-import { ProjectOrmEntity } from 'src/project/infra/project.entity.orm';
+import { ProjectEntity } from 'src/project/project.entity';
 import { DefaultOrmEntity } from 'src/shared/default/default.entity.orm';
 import { SkillEntity } from 'src/skill/skill.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
@@ -18,7 +18,7 @@ export class SkillProjectMapEntity extends DefaultOrmEntity {
   @JoinColumn({ name: 'skill_id' })
   skill: SkillEntity;
 
-  @ManyToOne(() => ProjectOrmEntity)
+  @ManyToOne(() => ProjectEntity)
   @JoinColumn({ name: 'project_id' })
-  project: ProjectOrmEntity;
+  project: ProjectEntity;
 }

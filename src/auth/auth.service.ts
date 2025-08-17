@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { TJwtPayload } from './auth.type';
 import { ERole } from './role.enum';
-import { Admin } from 'src/admin/domain/admin.entity';
 import { ConfigService } from '@nestjs/config';
+import { AdminEntity } from 'src/admin/admin.entity';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +12,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  signWithAdmin(admin: Admin): string {
+  signWithAdmin(admin: AdminEntity): string {
     return this.jwtService.sign({
       id: admin.id,
       email: admin.email,
@@ -22,7 +22,7 @@ export class AuthService {
     });
   }
 
-  signRefreshWithAdmin(admin: Admin): string {
+  signRefreshWithAdmin(admin: AdminEntity): string {
     return this.jwtService.sign(
       {
         id: admin.id,

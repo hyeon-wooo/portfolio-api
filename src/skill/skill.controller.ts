@@ -20,7 +20,6 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { RoleGuard } from 'src/auth/guard/role.guard';
 import { Roles } from 'src/auth/decorator/role.decorator';
 import { ERole } from 'src/auth/role.enum';
-import { FileService } from 'src/file/app/file.service';
 import { FileNotFoundException } from 'src/file/file.exception';
 import { EntityNotFoundException } from 'src/shared/default/default.exception';
 
@@ -77,7 +76,7 @@ export class SkillController {
   @Roles(ERole.ADM)
   @UseGuards(JwtAuthGuard, RoleGuard)
   async deleteMany(@Body() body: DeleteSkillBodyDto) {
-    await this.service.deleteMany(body.ids);
+    await this.service.deleteManyById(body.ids);
     return sendSuccessRes(true);
   }
 
