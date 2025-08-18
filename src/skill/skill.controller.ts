@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -13,6 +14,9 @@ import { SkillService } from './skill.service';
 import {
   CreateSkillBodyDto,
   DeleteSkillBodyDto,
+  SkillDetailDto,
+  SkillListItemDto,
+  SkillListItemWithIdDto,
   UpdateSkillBodyDto,
 } from './skill.dto';
 import { sendFailRes, sendSuccessRes } from 'src/shared/response';
@@ -22,7 +26,9 @@ import { Roles } from 'src/auth/decorator/role.decorator';
 import { ERole } from 'src/auth/role.enum';
 import { FileNotFoundException } from 'src/file/file.exception';
 import { EntityNotFoundException } from 'src/shared/default/default.exception';
-import { ActivateBodyDto } from 'src/shared/default/default.dto';
+import { ActivateBodyDto, ListQueryDto } from 'src/shared/default/default.dto';
+import { TFindManyOptions } from 'src/shared/crud.service';
+import { SkillEntity } from './skill.entity';
 
 @Controller('skill')
 export class SkillController {
@@ -30,9 +36,54 @@ export class SkillController {
 
   @Get('/')
   async findAll() {
-    const techCategories = await this.service.findMany();
+    const skills = await this.service.findMany(
+      {},
+      {
+        relations: {
+          file: true,
+        },
+      },
+    );
     return sendSuccessRes({
-      list: techCategories,
+      list: skills.map((v) => new SkillListItemDto(v)),
+    });
+  }
+
+  // 관리자용 목록조회 api
+  @Get('/list')
+  async findAllForAdm(@Query() query: ListQueryDto) {
+    const options: TFindManyOptions<SkillEntity> = {
+      relations: {
+        file: true,
+      },
+    };
+    if (query.from) options.offset = query.from;
+    if (query.limit) options.limit = query.limit;
+
+    const skills = await this.service.findMany({}, options);
+
+    let totalCount: number | null = null;
+    if (query.needTotalCount) {
+      totalCount = await this.service.count({});
+    }
+
+    return sendSuccessRes({
+      list: skills.map((v) => new SkillListItemWithIdDto(v)),
+      totalCount: totalCount ?? null,
+    });
+  }
+
+  @Get('/:id')
+  async findOne(@Param('id') idStr: string) {
+    const id = Number(idStr);
+    const found = await this.service.findOne(
+      { id },
+      { file: true, contents: true },
+    );
+    if (!found) return sendFailRes('존재하지 않는 기술입니다.');
+
+    return sendSuccessRes({
+      skill: new SkillDetailDto(found),
     });
   }
 

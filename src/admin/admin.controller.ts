@@ -24,6 +24,7 @@ import { SuperAdminGuard } from 'src/auth/guard/superadmin.guard';
 import { AdmIpGuard } from 'src/auth/guard/admin-ip.guard';
 import { ONE_DAY, ONE_HOUR } from 'src/shared/constant';
 import { AdminEntity } from './admin.entity';
+import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 
 @Controller('admin')
 @UseGuards(AdmIpGuard)
@@ -32,6 +33,22 @@ export class AdminController {
     private readonly service: AdminService,
     private readonly authService: AuthService,
   ) {}
+
+  @Get('/me')
+  @UseGuards(JwtAuthGuard)
+  async me(@Req() { user }: Request) {
+    if (!user) return sendFailRes('로그인 후 이용해주세요.');
+    const found = await this.service.findOne({ id: user.id });
+    if (!found) return sendFailRes('존재하지 않는 계정입니다.');
+
+    return sendSuccessRes({
+      me: {
+        id: found.id,
+        level: found.level,
+        email: found.email,
+      },
+    });
+  }
 
   // 관리자 생성
   @Post('/')
@@ -70,7 +87,17 @@ export class AdminController {
         maxAge: ONE_DAY * 7,
       });
 
-      return res.json(sendSuccessRes({ accessToken: token, refreshToken }));
+      return res.json(
+        sendSuccessRes({
+          accessToken: token,
+          refreshToken,
+          me: {
+            id: admin.id,
+            level: admin.level,
+            email: admin.email,
+          },
+        }),
+      );
     } catch (e) {
       if (e instanceof LoginFailedException)
         return res.json(sendFailRes(e.message, e.code));

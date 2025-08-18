@@ -28,7 +28,7 @@ export class FileEntity extends DefaultOrmEntity {
   @Column({ type: 'varchar', length: 100, comment: 'MIME 타입' })
   mimetype: string;
 
-  @Column({ type: 'boolean', default: false, comment: '활성화 여부' })
+  @Column({ type: 'boolean', default: true, comment: '활성화 여부' })
   active: boolean;
 
   @AfterLoad()
