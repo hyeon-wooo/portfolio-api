@@ -11,6 +11,7 @@ import { BatchModule } from './batch/batch.module';
 import { SkillModule } from './skill/skill.module';
 import { ProjectModule } from './project/project.module';
 import { NMRelationModule } from './nm-relation/nm-relation.module';
+import { CertModule } from './cert/cert.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { NMRelationModule } from './nm-relation/nm-relation.module';
     SkillModule,
     ProjectModule,
     NMRelationModule,
+    CertModule,
   ],
   controllers: [AppController],
   providers: [AppService],
