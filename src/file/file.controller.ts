@@ -98,7 +98,6 @@ export class FileController {
     });
 
     if (body?.active === true) {
-      console.log('!', body.active);
       const result = await this.service.activateFile(saved.id);
       if (!result) return sendFailRes('존재하지 않는 파일입니다.');
       return sendSuccessRes({

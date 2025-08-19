@@ -89,7 +89,7 @@ export class ProjectController {
     );
     if (!project) return sendFailRes('접근할 수 없는 프로젝트입니다.');
 
-    return sendSuccessRes(new ProjectDetailDto(project));
+    return sendSuccessRes({ project: new ProjectDetailDto(project) });
   }
 
   @Post('/')

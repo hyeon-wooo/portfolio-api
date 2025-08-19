@@ -141,6 +141,7 @@ export class ProjectDetailDto extends ProjectListItemDto {
       .map((image) => {
         return {
           name: image.name,
+          fileId: image.fileId,
           url: image.file.url ?? '',
         };
       });
@@ -186,13 +187,18 @@ export class ProjectDetailDto extends ProjectListItemDto {
       }
       return item;
     });
+
+    this.thumbnailId = entity.thumbnailId ?? 0;
   }
+
+  thumbnailId: number;
 
   contents: ProjectContentItemDto[];
 
   images: {
     name: string;
     url: string;
+    fileId: number;
   }[];
 
   links: ProjectLinkListItemDto[];
