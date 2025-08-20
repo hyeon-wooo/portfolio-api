@@ -104,11 +104,11 @@ export class CRUDService<Entity extends ObjectLiteral> {
     condition: Partial<Record<keyof Entity, any>>,
   ): Promise<void> {
     const entities = await this.repo.find({ where: condition as any });
-    await this.repo.softRemove(entities);
+    await this.repo.softDelete(entities);
   }
 
   async deleteByWhere(condition: FindOptionsWhere<Entity>): Promise<void> {
-    await this.repo.softRemove(condition as any);
+    await this.repo.softDelete(condition as any);
   }
 
   async count(condition?: FindOptionsWhere<Entity>): Promise<number> {
