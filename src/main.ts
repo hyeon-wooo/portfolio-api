@@ -9,8 +9,8 @@ async function bootstrap() {
   app.enableCors({
     origin:
       process.env.NODE_ENV === 'production'
-        ? ['https://adm.hi.hyeonwoo.com', 'http://localhost:8081']
-        : ['http://localhost:8081'],
+        ? ['https://adm.hi.hyeonwoo.com', 'https://hi.hyeonwoo.com']
+        : ['http://localhost:8081', 'http://localhost:8082'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
