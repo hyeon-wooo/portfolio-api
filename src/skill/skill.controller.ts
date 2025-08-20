@@ -49,6 +49,23 @@ export class SkillController {
     });
   }
 
+  // 프론트용 전체기술(내용 포함) 조회
+  @Get('/all')
+  async findAllForFront() {
+    const skills = await this.service.findMany(
+      {},
+      {
+        relations: {
+          file: true,
+          contents: true,
+        },
+      },
+    );
+    return sendSuccessRes({
+      list: skills.map((v) => new SkillDetailDto(v)),
+    });
+  }
+
   // 관리자용 목록조회 api
   @Get('/list')
   async findAllForAdm(@Query() query: ListQueryDto) {
