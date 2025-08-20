@@ -4,7 +4,7 @@ import { ESkillLevel } from './skill.enum';
 import { SkillContentEntity } from './skill-content/skill-content.entity';
 import { FileEntity } from 'src/file/file.entity';
 
-@Entity({ name: 'skill', comment: '기술스택' })
+@Entity({ name: 'skill', comment: '기술스택', orderBy: { sequence: 'DESC' } })
 export class SkillEntity extends DefaultOrmEntity {
   @Column({ length: 50, comment: '이름' })
   name: string;

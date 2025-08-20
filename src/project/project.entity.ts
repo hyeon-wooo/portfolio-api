@@ -7,7 +7,11 @@ import { SkillProjectMapEntity } from 'src/nm-relation/skill-project/skill-proje
 import { ProjectImageEntity } from './project-image/project-image.entity';
 import { ProjectLinkEntity } from './project-link/project-link.entity';
 
-@Entity({ name: 'project', comment: '프로젝트 이력' })
+@Entity({
+  name: 'project',
+  comment: '프로젝트 이력',
+  orderBy: { sequence: 'DESC', startDate: 'DESC' },
+})
 export class ProjectEntity extends DefaultOrmEntity {
   @Column({ comment: '프로젝트 이름' })
   title: string;

@@ -37,7 +37,7 @@ export class SkillController {
   @Get('/')
   async findAll() {
     const skills = await this.service.findMany(
-      {},
+      { isActiveFilter: true },
       {
         relations: {
           file: true,
