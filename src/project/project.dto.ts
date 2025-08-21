@@ -63,7 +63,6 @@ export class UpdateProjectBodyDto extends CreateProjectBodyDto {}
 export class ProjectListQueryDto extends ListQueryDto {
   @IsOptional()
   @Transform(({ value }) => {
-    console.log('value', value);
     if (value.length > 0)
       return value
         .split(',')
@@ -74,8 +73,15 @@ export class ProjectListQueryDto extends ListQueryDto {
   skillIds?: number[];
 
   @IsOptional()
-  @IsArray()
-  @IsEnum(EProjectPart, { each: true })
+  @Transform(({ value }) => {
+    const parts = Object.values(EProjectPart);
+    if (value.length > 0)
+      return value
+        .split(',')
+        .map((v) => parts.find((p) => p === v) || null)
+        .filter(Boolean);
+    return undefined;
+  })
   parts?: EProjectPart[];
 }
 
