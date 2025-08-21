@@ -42,7 +42,7 @@ export class ProjectController {
         await this.skillProjectService.getProjectIdsBySkillIds(query.skillIds);
       condition.id = In(filteredProjecIds);
     }
-    if (query.part) condition.part = query.part;
+    if (query.parts?.length) condition.part = In(query.parts);
 
     const options: TFindManyOptions<ProjectEntity> = {
       relations: {

@@ -74,8 +74,9 @@ export class ProjectListQueryDto extends ListQueryDto {
   skillIds?: number[];
 
   @IsOptional()
-  @IsEnum(EProjectPart)
-  part?: EProjectPart;
+  @IsArray()
+  @IsEnum(EProjectPart, { each: true })
+  parts?: EProjectPart[];
 }
 
 export class ProjectListItemDto {
