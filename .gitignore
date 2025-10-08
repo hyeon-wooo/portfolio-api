@@ -59,3 +59,5 @@ public/image/*
 files/*
 
 wg-client.conf
+
+k8s/secret.yaml

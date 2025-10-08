@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portfolio-api-config
+  namespace: portfolio
+  labels:
+    app: portfolio
+data:
+  NODE_ENV: 'production'
+  PORT: '3000'
+  IMAGE_BASE_URL: 'https://api.hi.hyeonwoo.com/image'
+  IMAGE_UPLOAD_STORAGE_PATH: '/share/portfolio/files'
+  IMAGE_PUBLIC_STORAGE_PATH: '/share/portfolio/public'

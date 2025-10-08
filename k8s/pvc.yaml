@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: portfolio-pvc
+  namespace: portfolio
+  labels:
+    app: portfolio
+spec:
+  volumeName: portfolio-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: manual

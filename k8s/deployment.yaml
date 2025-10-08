@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-api
+  namespace: portfolio
+  labels:
+    app: portfolio
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: portfolio
+      component: api
+  template:
+    metadata:
+      labels:
+        app: portfolio
+        component: api
+    spec:
+      containers:
+        - name: api
+          image: docker.hyeonwoo.com/portfolio/portfolio-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef: { name: portfolio-api-config }
+            - secretRef: { name: portfolio-api-secret }
+          # volumeMounts:
+          #   - name: files
+          #     mountPath: /share/portfolio/files
+          #   - name: public
+          #     mountPath: /share/portfolio/public
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+      volumes:
+        - name: share-portfolio
+          persistentVolumeClaim:
+            claimName: portfolio-pvc

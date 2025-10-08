@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: portfolio-pv
+  labels:
+    app: portfolio
+spec:
+  capacity:
+    storage: 50Gi
+  # 여러 노드 및 파드에서 동시에 RW 가능
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /share/portfolio
+    server: home51
+  # PVC 삭제 후에도 데이터 유지
+  persistentVolumeReclaimPolicy: Retain
