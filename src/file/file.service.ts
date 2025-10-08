@@ -7,14 +7,25 @@ import { CRUDService } from 'src/shared/crud.service';
 import { FileEntity } from './file.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FileService extends CRUDService<FileEntity> {
+  private imageUploadStoragePath: string;
+  private imagePublicStoragePath: string;
+
   constructor(
     @InjectRepository(FileEntity)
     repo: Repository<FileEntity>,
+    private readonly configService: ConfigService,
   ) {
     super(repo);
+    this.imageUploadStoragePath = this.configService.get<string>(
+      'IMAGE_UPLOAD_STORAGE_PATH',
+    )!;
+    this.imagePublicStoragePath = this.configService.get<string>(
+      'IMAGE_PUBLIC_STORAGE_PATH',
+    )!;
   }
 
   getImagePublicUrl(filename: string): string {
@@ -37,7 +48,7 @@ export class FileService extends CRUDService<FileEntity> {
   }
 
   getAbsolutePath(relativePath: string): string {
-    return join(process.cwd(), 'files', relativePath);
+    return join(this.imageUploadStoragePath, relativePath);
   }
 
   async saveUploadedFile(params: {
@@ -63,7 +74,7 @@ export class FileService extends CRUDService<FileEntity> {
     const destAbs = this.getAbsolutePath(params.relativePath);
     const destDir = destAbs.split('/').slice(0, -1).join('/');
     this.ensureDir(destDir);
-    renameSync(join(process.cwd(), 'files', params.filename), destAbs);
+    renameSync(join(this.imageUploadStoragePath, params.filename), destAbs);
 
     return saved;
   }
@@ -74,8 +85,7 @@ export class FileService extends CRUDService<FileEntity> {
     const filename = relativePath.split('/').pop() as string;
 
     const destDir = join(
-      process.cwd(),
-      'public',
+      this.imagePublicStoragePath,
       'image',
       relativePath.split('/').slice(0, -1).join('/'),
     );

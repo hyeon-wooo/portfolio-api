@@ -1,4 +1,4 @@
-name: Deploy Portfolio API
+name: Build and Push to Harbor
 on:
   push:
     branches:
@@ -10,11 +10,11 @@ concurrency:
 
 env:
   NODE_VERSION: '22.15'
-  APP_TAR: 'app.tar.gz'
+  IMAGE_NAME: 'portfolio-api'
 
 jobs:
-  build:
-    name: Build
+  docker:
+    name: Build & Push Docker Image
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -23,94 +23,43 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node (for version read)
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
 
-      - name: Install Dependencies for build
-        run: yarn install --frozen-lockfile
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: Build
-        run: yarn build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Create tar
-        run: |
-          mkdir -p release
-          tar -czf release/${{ env.APP_TAR }} \
-            dist package.json yarn.lock
-
-      - name: Upload tar
-        uses: actions/upload-artifact@v4
+      - name: Log in to Harbor
+        uses: docker/login-action@v3
         with:
-          name: app-tar
-          path: release/${{ env.APP_TAR }}
+          registry: ${{ secrets.HARBOR_REGISTRY }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-22.04
-    needs: build
-    permissions:
-      contents: read
-
-    steps:
-      - name: Download tar
-        uses: actions/download-artifact@v4
-        with: { name: app-tar, path: . }
-
-      - name: Install Wireguard
+      - name: Compute image tags
+        id: meta
         run: |
-          sudo apt-get update && sudo apt-get install -y wireguard wireguard-tools resolvconf
+          set -euo pipefail
+          IMAGE="${{ secrets.HARBOR_REGISTRY }}/${{ secrets.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}"
+          VERSION=$(node -p "require('./package.json').version")
+          TAGS="${IMAGE}:${VERSION}\n${IMAGE}:latest"
+          echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+          {
+            echo "tags<<EOF"
+            printf "%b\n" "$TAGS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Setup Wireguard config
-        run: |
-          echo "${{ secrets.WG_CONFIG }}" | sudo tee /etc/wireguard/wg0.conf > /dev/null
-          sudo chmod 600 /etc/wireguard/wg0.conf
-
-      - name: Connect Wireguard
-        run: |
-          sudo wg-quick up wg0
-          sleep 5
-          sudo wg show
-
-      - name: Send tar to production server
-        uses: appleboy/scp-action@v1
+      - name: Build and Push
+        uses: docker/build-push-action@v6
         with:
-          host: ${{ secrets.PROD_HOST }}
-          port: ${{ secrets.PROD_PORT }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          source: '${{ env.APP_TAR }}'
-          target: '${{ secrets.DEPLOY_PATH }}'
-          overwrite: true
-
-      - name: Connect SSH and Run application
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          port: ${{ secrets.PROD_PORT }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          script_stop: true
-          script: |
-            bash -lc '
-            set -euo pipefail
-            cd "${{ secrets.DEPLOY_PATH }}"
-            tar -xzf "${{ env.APP_TAR }}"
-
-            # nvm 로드
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-            # export PATH="/usr/local/bin:/usr/bin:$PATH"
-            command -v yarn >/dev/null 2>&1 || { echo "yarn not found (PATH=$PATH)"; exit 1; }
-            yarn --version || true
-            yarn install --frozen-lockfile --production
-            yarn start:prod
-            rm -rf "${{ env.APP_TAR }}"
-            '
-
-      - name: Disconnect Wireguard
-        if: always()
-        run: sudo wg-quick down wg0
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: false

@@ -12,12 +12,15 @@ import { SkillModule } from './skill/skill.module';
 import { ProjectModule } from './project/project.module';
 import { NMRelationModule } from './nm-relation/nm-relation.module';
 import { CertModule } from './cert/cert.module';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'public'),
+      rootPath: process.env.IMAGE_PUBLIC_STORAGE_PATH,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
