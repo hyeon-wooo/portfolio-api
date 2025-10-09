@@ -42,6 +42,12 @@ ENV NODE_ENV=production
 
 RUN corepack enable
 
+# Set container timezone to KST (Asia/Seoul)
+RUN apk add --no-cache tzdata \
+  && cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime \
+  && echo "Asia/Seoul" > /etc/timezone
+ENV TZ=Asia/Seoul
+
 # Only runtime artifacts (prod deps only)
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist

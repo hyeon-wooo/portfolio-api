@@ -21,9 +21,13 @@ spec:
       containers:
         - name: api
           image: docker.hyeonwoo.com/portfolio/portfolio-api:latest
-          imagePullPolicy: IfNotPresent
+          # imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
+          env:
+            - name: TZ
+              value: Asia/Seoul
           envFrom:
             - configMapRef: { name: portfolio-api-config }
             - secretRef: { name: portfolio-api-secret }
