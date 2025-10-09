@@ -48,6 +48,8 @@ spec:
             periodSeconds: 20
             timeoutSeconds: 2
             failureThreshold: 3
+      imagePullSecrets:
+        - name: harbor-secret
       volumes:
         - name: share-portfolio
           persistentVolumeClaim:

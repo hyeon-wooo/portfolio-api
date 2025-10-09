@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portfolio-api
+  namespace: portfolio
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: '0'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '900'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '900'
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api-hi.hyeonwoo.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: portfolio-api
+                port:
+                  number: 3000
