@@ -10,7 +10,7 @@ async function bootstrap() {
     origin:
       process.env.NODE_ENV === 'production'
         ? [
-            'https://adm.hi.hyeonwoo.com',
+            'https://adm-hi.hyeonwoo.com',
             'https://hi.hyeonwoo.com',
             'http://localhost:8081',
             'http://localhost:8082',
