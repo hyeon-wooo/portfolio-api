@@ -15,8 +15,10 @@ export class AdmIpGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<Request>();
+    const xri = (req.headers['x-real-ip'] as string) ?? '';
     const xff = (req.headers['x-forwarded-for'] as string) ?? '';
-    let ip = xff.split(',')[0]?.trim() || req.ip || req.socket.remoteAddress;
+    let ip =
+      xri || xff.split(',')[0]?.trim() || req.ip || req.socket.remoteAddress;
     this.logger.log(`ip: ${ip}`);
 
     // loopback ipv6 -> ipv4
