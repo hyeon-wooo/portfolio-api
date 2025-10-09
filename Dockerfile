@@ -23,7 +23,10 @@ COPY package.json yarn.lock ./
 COPY nest-cli.json tsconfig*.json ./
 COPY src ./src
 
-RUN yarn build
+# Build and assert dist/main.js exists (fail fast if build breaks)
+RUN yarn build \
+  && ls -al dist \
+  && test -f dist/main.js
 
 
 FROM node:20-alpine AS prod-deps
