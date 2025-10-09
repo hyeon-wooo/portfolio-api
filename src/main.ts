@@ -2,7 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import pkg from '../package.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+const pkg = JSON.parse(
+  readFileSync(join(process.cwd(), 'package.json'), 'utf-8'),
+);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
