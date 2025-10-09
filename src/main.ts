@@ -12,6 +12,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Bootstrap');
   app.use(cookieParser());
+  // trust reverse proxy (for correct req.ip and X-Forwarded-For)
+  const httpAdapter = app.getHttpAdapter();
+  const expressApp = httpAdapter.getInstance();
+  expressApp.set('trust proxy', 1);
   logger.log(`version: ${pkg.version}`);
   app.enableCors({
     origin:
