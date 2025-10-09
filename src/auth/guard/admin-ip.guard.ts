@@ -19,7 +19,6 @@ export class AdmIpGuard implements CanActivate {
     const xff = (req.headers['x-forwarded-for'] as string) ?? '';
     let ip =
       xri || xff.split(',')[0]?.trim() || req.ip || req.socket.remoteAddress;
-    this.logger.log(`ip: ${ip}`);
 
     // loopback ipv6 -> ipv4
     if (ip === '::1') ip = '127.0.0.1';
@@ -28,6 +27,7 @@ export class AdmIpGuard implements CanActivate {
 
     const allowedIpsStr = this.configService.get('ADMIN_ALLOWD_IPS');
     const allowedIps = allowedIpsStr.split(',');
+    if (allowedIps.length === 0) return true;
 
     if (allowedIps.includes(ip)) return true;
 
