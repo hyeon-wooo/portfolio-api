@@ -13,11 +13,12 @@ env:
   IMAGE_NAME: 'portfolio-api'
 
 jobs:
-  docker:
-    name: Build & Push Docker Image
+  build:
+    name: Build & Deploy Docker Image
     runs-on: ubuntu-22.04
-    permissions:
-      contents: read
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      version: ${{ steps.meta.outputs.version }}
 
     steps:
       - name: Checkout
@@ -49,6 +50,7 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           TAGS="${IMAGE}:${VERSION}\n${IMAGE}:latest"
           echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           {
             echo "tags<<EOF"
             printf "%b\n" "$TAGS"
@@ -63,3 +65,47 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           provenance: false
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-22.04
+    needs: build
+
+    steps:
+      - name: Install WireGuard tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y wireguard-tools
+
+      - name: Write WireGuard config from secret
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.WG_CONFIG }}" > ./wg-client.conf
+          chmod 600 ./wg-client.conf
+
+      - name: Start WireGuard tunnel
+        run: |
+          set -euo pipefail
+          sudo wg-quick up ./wg-client.conf
+
+      - name: Rollout new image via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          port: ${{ secrets.PROD_PORT }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            IMAGE="${{ needs.build.outputs.image }}"
+            VERSION="${{ needs.build.outputs.version }}"
+            echo "Rolling out ${IMAGE}:${VERSION}"
+            kubectl -n portfolio set image deployment/portfolio-api api="${IMAGE}:${VERSION}" --record
+            kubectl -n portfolio rollout status deployment/portfolio-api
+
+      - name: Stop WireGuard tunnel
+        if: always()
+        run: |
+          sudo wg-quick down ./wg-client.conf
