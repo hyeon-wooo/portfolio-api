@@ -79,12 +79,14 @@ export class AdminController {
         secure: process.env.NODE_ENV === 'production',
         path: '/',
         maxAge: ONE_HOUR * 6,
+        sameSite: 'none',
       });
       res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         path: '/',
         maxAge: ONE_DAY * 7,
+        sameSite: 'none',
       });
 
       return res.json(
