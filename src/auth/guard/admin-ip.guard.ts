@@ -27,7 +27,7 @@ export class AdmIpGuard implements CanActivate {
 
     const allowedIpsStr = this.configService.get('ADMIN_ALLOWD_IPS');
     const allowedIps = allowedIpsStr.split(',');
-    this.logger.log(`allowedIps: ${allowedIps}`);
+    this.logger.log(`allowedIps: ${typeof allowedIps} / ${allowedIps.length}`);
     this.logger.log(`ip: ${ip}`);
     if (allowedIps.length === 0) return true;
 
