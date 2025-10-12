@@ -46,7 +46,8 @@ export class FileController {
     FileInterceptor('file', {
       storage: diskStorage({
         destination: (_req, _file, cb) => {
-          const dir = join(process.cwd(), 'files');
+          const dir = process.env.IMAGE_UPLOAD_STORAGE_PATH!;
+          console.log('dir', dir);
           if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
           cb(null, dir);
         },
