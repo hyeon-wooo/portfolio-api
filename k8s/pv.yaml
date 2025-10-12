@@ -7,11 +7,12 @@ metadata:
 spec:
   capacity:
     storage: 50Gi
+  storageClassName: portfolio-storage
   # 여러 노드 및 파드에서 동시에 RW 가능
   accessModes:
     - ReadWriteMany
   nfs:
     path: /share/portfolio
-    server: home51
+    server: 10.10.10.51
   # PVC 삭제 후에도 데이터 유지
   persistentVolumeReclaimPolicy: Retain

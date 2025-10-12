@@ -31,11 +31,9 @@ spec:
           envFrom:
             - configMapRef: { name: portfolio-api-config }
             - secretRef: { name: portfolio-api-secret }
-          # volumeMounts:
-          #   - name: files
-          #     mountPath: /share/portfolio/files
-          #   - name: public
-          #     mountPath: /share/portfolio/public
+          volumeMounts:
+            - name: share-portfolio
+              mountPath: /share/portfolio
           readinessProbe:
             httpGet:
               path: /
