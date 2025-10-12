@@ -26,9 +26,11 @@ export class AdmIpGuard implements CanActivate {
     if (ip && ip.startsWith('::ffff:')) ip = ip.replace('::ffff:', '');
 
     const allowedIpsStr = this.configService.get('ADMIN_ALLOWD_IPS');
-    const allowedIps = allowedIpsStr.split(',');
-    this.logger.log(`allowedIps: ${typeof allowedIps} / ${allowedIps.length}`);
-    this.logger.log(`ip: ${ip}`);
+    const allowedIps = allowedIpsStr
+      .split(',')
+      .filter((ip) => ip.trim() !== '');
+    // this.logger.log(`allowedIps: ${allowedIps}`);
+    // this.logger.log(`ip: ${ip}`);
     if (allowedIps.length === 0) return true;
 
     if (allowedIps.includes(ip)) return true;
